@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+import sys
+# Using gevent lock if green threads are activated
+if 'gevent' in sys.modules:
+    import gevent.lock
+    Lock = gevent.lock.RLock
+else:
+    import threading
+    Lock = threading.Lock
+
 import socket
-import threading
 import time
 
 import msgpack
-
 
 _global_sender = None
 
@@ -42,7 +49,7 @@ class FluentSender(object):
         self.socket = None
         self.pendings = None
         self.packer = msgpack.Packer()
-        self.lock = threading.Lock()
+        self.lock = Lock()
 
         try:
             self._reconnect()
